@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Building2 } from "lucide-react";
+import { AlertCircle, Building2, TrendingDown } from "lucide-react";
 import InputGroup from "./InputGroup";
 import MetricCard from "./MetricCard";
 import IndustryBenefits from "./IndustryBenefits";
@@ -165,6 +165,8 @@ export default function MissedRevenueSection({
   }, [industry, missedCalls, customerValue, conversionRate, onDataChange]);
 
   const selectedIndustry = industry ? INDUSTRY_DATA[industry] : null;
+  
+  const allInputsFilled = industry && missedCalls && customerValue && conversionRate;
 
   return (
     <section className="py-16 md:py-24">
@@ -255,28 +257,40 @@ export default function MissedRevenueSection({
           </div>
 
           <div className="space-y-6 pt-8">
-            <h3 className="text-2xl font-semibold">Your Missed Revenue</h3>
+            <div className="flex items-center gap-3">
+              {allInputsFilled && (
+                <TrendingDown 
+                  className="h-6 w-6 text-destructive animate-in fade-in slide-in-from-bottom-4 duration-700" 
+                  data-testid="icon-trending-down"
+                />
+              )}
+              <h3 className="text-2xl font-semibold">Your Missed Revenue</h3>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <MetricCard
                 label="Weekly Loss"
                 value={formatCurrency(weeklyLoss)}
                 testId="metric-weekly-loss"
+                valueColor="text-destructive"
               />
               <MetricCard
                 label="Monthly Loss"
                 value={formatCurrency(monthlyLoss)}
                 testId="metric-monthly-loss"
+                valueColor="text-destructive"
               />
               <MetricCard
                 label="Annual Loss"
                 value={formatCurrency(annualLoss)}
                 testId="metric-annual-loss"
+                valueColor="text-destructive"
               />
               <MetricCard
                 label="Recovery Potential (80%)"
                 value={formatCurrency(recoveryPotential)}
                 testId="metric-recovery-potential"
                 className="bg-primary/5 border-primary/20"
+                valueColor="text-primary"
               />
             </div>
           </div>
