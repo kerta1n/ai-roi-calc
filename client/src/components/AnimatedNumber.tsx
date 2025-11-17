@@ -1,64 +1,50 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AnimatedNumberProps {
   value: number;
   formatValue?: (value: number) => string;
   className?: string;
   testId?: string;
-  duration?: number;
 }
 
 export default function AnimatedNumber({ 
   value, 
   formatValue = (v) => v.toString(), 
   className = "",
-  testId,
-  duration = 800
+  testId
 }: AnimatedNumberProps) {
   const [displayValue, setDisplayValue] = useState(value);
-  const animationRef = useRef<number>();
-  const startTimeRef = useRef<number>();
-  const startValueRef = useRef(value);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (displayValue === value) return;
 
-    startValueRef.current = displayValue;
-    startTimeRef.current = undefined;
+    setIsAnimating(true);
+    setDisplayValue(value);
 
-    const animate = (currentTime: number) => {
-      if (!startTimeRef.current) {
-        startTimeRef.current = currentTime;
-      }
+    const timeout = setTimeout(() => {
+      setIsAnimating(false);
+    }, 600);
 
-      const elapsed = currentTime - startTimeRef.current;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      
-      const currentValue = startValueRef.current + (value - startValueRef.current) * easeOutQuart;
-      
-      setDisplayValue(currentValue);
+    return () => clearTimeout(timeout);
+  }, [value]);
 
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        setDisplayValue(value);
-      }
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [value, duration, displayValue]);
+  const formattedValue = formatValue(displayValue);
+  const chars = formattedValue.split('');
 
   return (
-    <span className={className} data-testid={testId}>
-      {formatValue(displayValue)}
+    <span className={`inline-flex ${className}`} data-testid={testId}>
+      {chars.map((char, index) => (
+        <span
+          key={`${index}-${char}`}
+          className={`inline-block ${isAnimating && char !== '$' && char !== ',' && char !== '%' ? 'animate-roll-digit' : ''}`}
+          style={{
+            minWidth: char === ',' || char === '.' ? '0.3em' : char === '$' || char === '%' ? '0.6em' : '0.6em'
+          }}
+        >
+          {char}
+        </span>
+      ))}
     </span>
   );
 }
