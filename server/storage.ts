@@ -1,37 +1,44 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type Calculation, type InsertCalculation } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createCalculation(calculation: InsertCalculation): Promise<Calculation>;
+  getCalculation(id: string): Promise<Calculation | undefined>;
+  getAllCalculations(): Promise<Calculation[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private calculations: Map<string, Calculation>;
 
   constructor() {
-    this.users = new Map();
+    this.calculations = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createCalculation(insertCalculation: InsertCalculation): Promise<Calculation> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const calculation: Calculation = {
+      id,
+      industry: insertCalculation.industry ?? null,
+      missedCalls: insertCalculation.missedCalls,
+      customerValue: insertCalculation.customerValue,
+      conversionRate: insertCalculation.conversionRate,
+      annualSavings: insertCalculation.annualSavings,
+      additionalRevenue: insertCalculation.additionalRevenue,
+      annualCost: insertCalculation.annualCost,
+      createdAt: new Date(),
+    };
+    this.calculations.set(id, calculation);
+    return calculation;
+  }
+
+  async getCalculation(id: string): Promise<Calculation | undefined> {
+    return this.calculations.get(id);
+  }
+
+  async getAllCalculations(): Promise<Calculation[]> {
+    return Array.from(this.calculations.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
   }
 }
 

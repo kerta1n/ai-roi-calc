@@ -2,21 +2,36 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Save } from "lucide-react";
+import { Download, Save, Check } from "lucide-react";
 import InputGroup from "./InputGroup";
 import HeroMetric from "./HeroMetric";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine } from "recharts";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface ROISectionProps {
   initialAdditionalRevenue?: number;
+  industry?: string;
+  missedCalls?: string;
+  customerValue?: string;
+  conversionRate?: string;
 }
 
-export default function ROISection({ initialAdditionalRevenue = 0 }: ROISectionProps) {
+export default function ROISection({ 
+  initialAdditionalRevenue = 0,
+  industry = "",
+  missedCalls = "0",
+  customerValue = "0",
+  conversionRate = "0"
+}: ROISectionProps) {
+  const { toast } = useToast();
   const [annualSavings, setAnnualSavings] = useState("25000");
   const [additionalRevenue, setAdditionalRevenue] = useState(
     initialAdditionalRevenue.toString()
   );
   const [annualCost, setAnnualCost] = useState("2000");
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialAdditionalRevenue > 0) {
@@ -53,11 +68,77 @@ export default function ROISection({ initialAdditionalRevenue = 0 }: ROISectionP
   };
 
   const handleDownload = () => {
-    console.log("Download PDF triggered");
+    const element = document.createElement('a');
+    const content = `
+AI Phone Agent ROI Calculator - Results
+========================================
+
+Input Parameters:
+- Industry: ${industry || 'Not specified'}
+- Missed Calls Per Week: ${missedCalls}
+- Average Customer Value: $${customerValue}
+- Call Conversion Rate: ${conversionRate}%
+- Estimated Annual Savings: ${formatCurrency(annualSavingsNum)}
+- Additional Annual Revenue: ${formatCurrency(additionalRevenueNum)}
+- Annual AI Solution Cost: ${formatCurrency(annualCostNum)}
+
+Results:
+- Net Annual Profit: ${formatCurrency(netProfit)}
+- ROI Percentage: ${formatPercent(roiPercentage)}
+- Total Benefit: ${formatCurrency(totalBenefit)}
+- Payback Period: ${paybackMonths > 0 ? `${paybackMonths.toFixed(1)} months` : 'N/A'}
+- 3-Year Projection: ${formatCurrency(threeYearProfit)}
+
+Generated on: ${new Date().toLocaleString()}
+    `.trim();
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(blob);
+    element.download = `roi-calculation-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    URL.revokeObjectURL(element.href);
   };
 
-  const handleSave = () => {
-    console.log("Save calculation triggered");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const data = {
+        industry: industry || null,
+        missedCalls: missedCalls,
+        customerValue: customerValue,
+        conversionRate: conversionRate,
+        annualSavings: annualSavings,
+        additionalRevenue: additionalRevenue,
+        annualCost: annualCost,
+      };
+
+      const response = await fetch("/api/calculations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save calculation");
+      }
+
+      const result = await response.json();
+      setSavedId(result.id);
+      toast({
+        title: "Calculation Saved",
+        description: "Your ROI calculation has been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Failed to save calculation. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const pieData = [
@@ -140,15 +221,25 @@ export default function ROISection({ initialAdditionalRevenue = 0 }: ROISectionP
                 data-testid="button-download-pdf"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download PDF
+                Download Report
               </Button>
               <Button
                 variant="outline"
                 onClick={handleSave}
+                disabled={isSaving}
                 data-testid="button-save-calculation"
               >
-                <Save className="h-4 w-4 mr-2" />
-                Save Calculation
+                {savedId ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Saved
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save Calculation"}
+                  </>
+                )}
               </Button>
             </div>
 

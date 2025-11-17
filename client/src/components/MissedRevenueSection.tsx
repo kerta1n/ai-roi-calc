@@ -109,9 +109,18 @@ const INDUSTRY_DATA: Record<string, { name: string; benefits: string[] }> = {
 
 interface MissedRevenueSectionProps {
   onRecoveryPotentialChange?: (value: number) => void;
+  onDataChange?: (data: {
+    industry: string;
+    missedCalls: string;
+    customerValue: string;
+    conversionRate: string;
+  }) => void;
 }
 
-export default function MissedRevenueSection({ onRecoveryPotentialChange }: MissedRevenueSectionProps) {
+export default function MissedRevenueSection({ 
+  onRecoveryPotentialChange,
+  onDataChange 
+}: MissedRevenueSectionProps) {
   const [industry, setIndustry] = useState("");
   const [missedCalls, setMissedCalls] = useState("20");
   const [customerValue, setCustomerValue] = useState("250");
@@ -142,6 +151,17 @@ export default function MissedRevenueSection({ onRecoveryPotentialChange }: Miss
       onRecoveryPotentialChange(recoveryPotential);
     }
   }, [recoveryPotential, onRecoveryPotentialChange]);
+
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange({
+        industry,
+        missedCalls,
+        customerValue,
+        conversionRate,
+      });
+    }
+  }, [industry, missedCalls, customerValue, conversionRate, onDataChange]);
 
   const selectedIndustry = industry ? INDUSTRY_DATA[industry] : null;
 
