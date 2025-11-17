@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -177,13 +178,18 @@ export default function MissedRevenueSection({
           </p>
         </div>
 
-        <Card className="p-6 mb-8 bg-primary/5 border-primary/20">
+        <Card className="p-6 mb-8 bg-destructive/5 border-destructive/20">
           <div className="flex gap-4 items-start">
-            <AlertCircle className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+            <AlertCircle className="h-6 w-6 text-destructive flex-shrink-0 mt-1" />
             <div className="flex-1">
-              <h2 className="text-xl font-semibold mb-2">
-                Are You Losing Revenue From Missed Calls?
-              </h2>
+              <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
+                <h2 className="text-xl font-semibold">
+                  Are You Losing Revenue From Missed Calls?
+                </h2>
+                <Badge className="bg-destructive text-destructive-foreground border-destructive-border" data-testid="badge-calculate-now">
+                  Calculate now
+                </Badge>
+              </div>
               <p className="text-base text-muted-foreground">
                 Calculate how much revenue you're leaving on the table when calls go unanswered
               </p>
