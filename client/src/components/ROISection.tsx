@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Save } from "lucide-react";
 import InputGroup from "./InputGroup";
 import HeroMetric from "./HeroMetric";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine } from "recharts";
 
 interface ROISectionProps {
   initialAdditionalRevenue?: number;
@@ -59,49 +60,80 @@ export default function ROISection({ initialAdditionalRevenue = 0 }: ROISectionP
     console.log("Save calculation triggered");
   };
 
+  const pieData = [
+    { name: "Additional Revenue", value: additionalRevenueNum, color: "hsl(var(--chart-1))" },
+    { name: "AI Solution Cost", value: annualCostNum, color: "hsl(var(--chart-4))" },
+  ];
+
+  const barData = [
+    { 
+      name: "Total Benefits", 
+      value: totalBenefit,
+      fill: "hsl(var(--chart-2))"
+    },
+    { 
+      name: "AI Solution Cost", 
+      value: annualCostNum,
+      fill: "hsl(var(--chart-4))"
+    },
+  ];
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <Card className="p-3">
+          <p className="font-semibold">{formatCurrency(payload[0].value)}</p>
+        </Card>
+      );
+    }
+    return null;
+  };
+
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-semibold">Calculate Your ROI</h2>
-          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-            Enter your estimated costs and benefits to see your AI phone agent investment return
-          </p>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="p-8 h-fit">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h2 className="text-3xl md:text-4xl font-semibold">Calculate Your ROI</h2>
+                <p className="text-base text-muted-foreground">
+                  Enter your estimated costs and benefits to see your AI phone agent investment return
+                </p>
+              </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="space-y-8">
-            <InputGroup
-              label="Estimated Annual Savings ($)"
-              value={annualSavings}
-              onChange={setAnnualSavings}
-              type="currency"
-              placeholder="e.g., 50000"
-              helperText="Cost reductions from labor, fewer missed leads, time saved, reduced errors"
-              testId="input-annual-savings"
-            />
-            <InputGroup
-              label="Additional Annual Revenue ($)"
-              value={additionalRevenue}
-              onChange={setAdditionalRevenue}
-              type="currency"
-              placeholder="Auto-populated from recovery potential"
-              helperText="New leads captured, upsells, conversion improvements"
-              testId="input-additional-revenue"
-            />
-            <InputGroup
-              label="Annual Cost of AI Solution ($)"
-              value={annualCost}
-              onChange={setAnnualCost}
-              type="currency"
-              placeholder="e.g., 2000"
-              helperText="Subscription, implementation, maintenance"
-              testId="input-annual-cost"
-            />
-          </div>
+              <InputGroup
+                label="Estimated Annual Savings ($)"
+                value={annualSavings}
+                onChange={setAnnualSavings}
+                type="currency"
+                placeholder="e.g., 50000"
+                helperText="Cost reductions from labor, fewer missed leads, time saved, reduced errors"
+                testId="input-annual-savings"
+              />
+              <InputGroup
+                label="Additional Annual Revenue ($)"
+                value={additionalRevenue}
+                onChange={setAdditionalRevenue}
+                type="currency"
+                placeholder="Auto-populated from recovery potential"
+                helperText="New leads captured, upsells, conversion improvements"
+                testId="input-additional-revenue"
+              />
+              <InputGroup
+                label="Annual Cost of AI Solution ($)"
+                value={annualCost}
+                onChange={setAnnualCost}
+                type="currency"
+                placeholder="e.g., 2000"
+                helperText="Subscription, implementation, maintenance"
+                testId="input-annual-cost"
+              />
+            </div>
+          </Card>
 
-          <div className="space-y-8 lg:sticky lg:top-8 lg:self-start">
-            <div className="flex gap-3 justify-end flex-wrap">
+          <div className="space-y-6 max-h-[800px] overflow-y-auto">
+            <div className="flex gap-3 justify-end flex-wrap sticky top-0 bg-muted/30 py-2 z-10">
               <Button
                 variant="outline"
                 onClick={handleDownload}
@@ -188,6 +220,57 @@ export default function ROISection({ initialAdditionalRevenue = 0 }: ROISectionP
                     </span>
                   </div>
                 </div>
+              </div>
+            </Card>
+
+            <Card className="p-8">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-1">Cost Breakdown</h3>
+                  <p className="text-sm text-muted-foreground">Distribution of savings, revenue, and costs</p>
+                </div>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+
+            <Card className="p-8">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-1">Benefits vs Costs</h3>
+                  <p className="text-sm text-muted-foreground">Comparison of total benefits and AI solution cost</p>
+                </div>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart 
+                    data={barData} 
+                    layout="vertical"
+                    margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis type="number" tickFormatter={(value) => formatCurrency(value)} />
+                    <YAxis dataKey="name" type="category" />
+                    <RechartsTooltip content={<CustomTooltip />} />
+                    <ReferenceLine x={totalBenefit} stroke="hsl(var(--primary))" strokeWidth={2} strokeDasharray="3 3" />
+                    <Bar dataKey="value" radius={[0, 8, 8, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </Card>
           </div>

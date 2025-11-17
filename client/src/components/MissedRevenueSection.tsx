@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -115,12 +115,13 @@ export default function MissedRevenueSection({ onRecoveryPotentialChange }: Miss
   const [industry, setIndustry] = useState("");
   const [missedCalls, setMissedCalls] = useState("20");
   const [customerValue, setCustomerValue] = useState("250");
+  const [conversionRate, setConversionRate] = useState("50");
 
-  const callConversionRate = 0.5;
   const recoveryRate = 0.8;
 
   const missedCallsNum = parseFloat(missedCalls) || 0;
   const customerValueNum = parseFloat(customerValue) || 0;
+  const callConversionRate = (parseFloat(conversionRate) || 0) / 100;
 
   const weeklyLoss = missedCallsNum * callConversionRate * customerValueNum;
   const monthlyLoss = weeklyLoss * 4.33;
@@ -136,9 +137,11 @@ export default function MissedRevenueSection({ onRecoveryPotentialChange }: Miss
     }).format(value);
   };
 
-  if (onRecoveryPotentialChange) {
-    onRecoveryPotentialChange(recoveryPotential);
-  }
+  useEffect(() => {
+    if (onRecoveryPotentialChange) {
+      onRecoveryPotentialChange(recoveryPotential);
+    }
+  }, [recoveryPotential, onRecoveryPotentialChange]);
 
   const selectedIndustry = industry ? INDUSTRY_DATA[industry] : null;
 
@@ -197,7 +200,7 @@ export default function MissedRevenueSection({ onRecoveryPotentialChange }: Miss
             />
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <InputGroup
               label="Missed Calls Per Week"
               value={missedCalls}
@@ -215,10 +218,14 @@ export default function MissedRevenueSection({ onRecoveryPotentialChange }: Miss
               placeholder="e.g., 500"
               testId="input-customer-value"
             />
-          </div>
-
-          <div className="text-sm text-muted-foreground">
-            Call Conversion Rate: <span className="font-medium">50%</span>
+            <InputGroup
+              label="Call Conversion Rate (%)"
+              value={conversionRate}
+              onChange={setConversionRate}
+              type="number"
+              placeholder="e.g., 50"
+              testId="input-conversion-rate"
+            />
           </div>
 
           <div className="space-y-6 pt-8">
