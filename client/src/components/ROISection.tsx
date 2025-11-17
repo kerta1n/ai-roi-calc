@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Save, Check } from "lucide-react";
+import { Download, Save, Check, TrendingUp } from "lucide-react";
 import InputGroup from "./InputGroup";
 import HeroMetric from "./HeroMetric";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine } from "recharts";
@@ -170,6 +170,8 @@ Generated on: ${new Date().toLocaleString()}
     return null;
   };
 
+  const allROIInputsFilled = annualSavings && additionalRevenue && annualCost;
+
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="max-w-6xl mx-auto px-6">
@@ -251,6 +253,12 @@ Generated on: ${new Date().toLocaleString()}
                     value={formatCurrency(netProfit)}
                     testId="hero-net-profit"
                     variant={netProfit > 0 ? "success" : netProfit < 0 ? "warning" : "default"}
+                    icon={allROIInputsFilled && netProfit > 0 ? (
+                      <TrendingUp 
+                        className="h-12 w-12 text-green-600 dark:text-green-500 animate-in fade-in slide-in-from-bottom-4 duration-700" 
+                        data-testid="icon-trending-up"
+                      />
+                    ) : undefined}
                   />
                 </div>
 
