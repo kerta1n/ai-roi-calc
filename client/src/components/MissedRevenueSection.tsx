@@ -270,24 +270,28 @@ export default function MissedRevenueSection({
               <MetricCard
                 label="Weekly Loss"
                 value={formatCurrency(weeklyLoss)}
+                numericValue={weeklyLoss}
                 testId="metric-weekly-loss"
                 valueColor="text-destructive"
               />
               <MetricCard
                 label="Monthly Loss"
                 value={formatCurrency(monthlyLoss)}
+                numericValue={monthlyLoss}
                 testId="metric-monthly-loss"
                 valueColor="text-destructive"
               />
               <MetricCard
                 label="Annual Loss"
                 value={formatCurrency(annualLoss)}
+                numericValue={annualLoss}
                 testId="metric-annual-loss"
                 valueColor="text-destructive"
               />
               <MetricCard
                 label="Recovery Potential (80%)"
                 value={formatCurrency(recoveryPotential)}
+                numericValue={recoveryPotential}
                 testId="metric-recovery-potential"
                 className="bg-primary/5 border-primary/20"
                 valueColor="text-primary"

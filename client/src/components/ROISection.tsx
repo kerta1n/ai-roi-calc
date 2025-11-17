@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Save, Check, TrendingUp } from "lucide-react";
 import InputGroup from "./InputGroup";
 import HeroMetric from "./HeroMetric";
+import AnimatedNumber from "./AnimatedNumber";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ReferenceLine } from "recharts";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -251,6 +252,7 @@ Generated on: ${new Date().toLocaleString()}
                   <HeroMetric
                     label="Net Annual Profit"
                     value={formatCurrency(netProfit)}
+                    numericValue={netProfit}
                     testId="hero-net-profit"
                     variant={netProfit > 0 ? "success" : netProfit < 0 ? "warning" : "default"}
                     icon={allROIInputsFilled && netProfit > 0 ? (
@@ -266,6 +268,7 @@ Generated on: ${new Date().toLocaleString()}
                   <HeroMetric
                     label="ROI Percentage"
                     value={formatPercent(roiPercentage)}
+                    numericValue={roiPercentage}
                     testId="hero-roi-percentage"
                     variant={roiPercentage > 0 ? "success" : "default"}
                   />
@@ -282,40 +285,64 @@ Generated on: ${new Date().toLocaleString()}
                     <span className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                       Total Benefit:
                     </span>
-                    <span className="text-xl font-semibold font-mono" data-testid="text-total-benefit">
-                      {formatCurrency(totalBenefit)}
+                    <span className="text-xl font-semibold font-mono">
+                      <AnimatedNumber 
+                        value={totalBenefit} 
+                        formatValue={formatCurrency}
+                        testId="text-total-benefit"
+                      />
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                       AI Solution Cost:
                     </span>
-                    <span className="text-xl font-semibold font-mono" data-testid="text-ai-cost">
-                      {formatCurrency(annualCostNum)}
+                    <span className="text-xl font-semibold font-mono">
+                      <AnimatedNumber 
+                        value={annualCostNum} 
+                        formatValue={formatCurrency}
+                        testId="text-ai-cost"
+                      />
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                       Net Profit:
                     </span>
-                    <span className="text-xl font-semibold font-mono" data-testid="text-net-profit">
-                      {formatCurrency(netProfit)}
+                    <span className="text-xl font-semibold font-mono">
+                      <AnimatedNumber 
+                        value={netProfit} 
+                        formatValue={formatCurrency}
+                        testId="text-net-profit"
+                      />
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                       Payback Period:
                     </span>
-                    <span className="text-xl font-semibold font-mono" data-testid="text-payback-period">
-                      {paybackMonths > 0 ? `${paybackMonths.toFixed(1)} months` : "N/A"}
+                    <span className="text-xl font-semibold font-mono">
+                      {paybackMonths > 0 ? (
+                        <AnimatedNumber 
+                          value={paybackMonths} 
+                          formatValue={(v) => `${v.toFixed(1)} months`}
+                          testId="text-payback-period"
+                        />
+                      ) : (
+                        <span data-testid="text-payback-period">N/A</span>
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-4 border-t">
                     <span className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                       3-Year Projection:
                     </span>
-                    <span className="text-2xl font-semibold font-mono text-green-600 dark:text-green-500" data-testid="text-three-year-projection">
-                      {formatCurrency(threeYearProfit)}
+                    <span className="text-2xl font-semibold font-mono text-green-600 dark:text-green-500">
+                      <AnimatedNumber 
+                        value={threeYearProfit} 
+                        formatValue={formatCurrency}
+                        testId="text-three-year-projection"
+                      />
                     </span>
                   </div>
                 </div>
